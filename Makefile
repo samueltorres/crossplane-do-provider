@@ -1,14 +1,14 @@
 # ====================================================================================
 # Setup Project
 
-PROJECT_NAME := provider-jet-template
+PROJECT_NAME := provider-jet-do
 PROJECT_REPO := github.com/crossplane-contrib/$(PROJECT_NAME)
 
 export TERRAFORM_VERSION := 1.0.11
-export TERRAFORM_PROVIDER_SOURCE :=
-export TERRAFORM_PROVIDER_VERSION :=
-export TERRAFORM_PROVIDER_DOWNLOAD_NAME :=
-export TERRAFORM_PROVIDER_DOWNLOAD_URL_PREFIX :=
+export TERRAFORM_PROVIDER_SOURCE := digitalocean/digitalocean
+export TERRAFORM_PROVIDER_VERSION := 2.16.0
+export TERRAFORM_PROVIDER_DOWNLOAD_NAME := terraform-provider-digitalocean
+export TERRAFORM_PROVIDER_DOWNLOAD_URL_PREFIX := https://releases.hashicorp.com/terraform-provider-digitalocean/2.16.0
 
 PLATFORMS ?= linux_amd64 linux_arm64
 
@@ -35,7 +35,8 @@ NPROCS ?= 1
 # to half the number of CPU cores.
 GO_TEST_PARALLEL := $(shell echo $$(( $(NPROCS) / 2 )))
 
-GO_STATIC_PACKAGES = $(GO_PROJECT)/cmd/provider $(GO_PROJECT)/cmd/generator
+GO_STATIC_PACKAGES = $(GO_PROJECT)/cmd/provider
+# GO_STATIC_PACKAGES = $(GO_PROJECT)/cmd/provider $(GO_PROJECT)/cmd/generator
 GO_LDFLAGS += -X $(GO_PROJECT)/internal/version.Version=$(VERSION)
 GO_SUBDIRS += cmd internal apis
 GO111MODULE = on
@@ -50,7 +51,7 @@ GO111MODULE = on
 # Setup Images
 
 DOCKER_REGISTRY := crossplane
-IMAGES = provider-jet-template provider-jet-template-controller
+IMAGES = provider-jet-do provider-jet-do-controller
 -include build/makelib/image.mk
 
 # ====================================================================================

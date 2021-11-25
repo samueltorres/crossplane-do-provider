@@ -4,18 +4,18 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.6.2
   creationTimestamp: null
-  name: orders.hashicups.template.jet.crossplane.io
+  name: vpcs.vpc.do.jet.crossplane.io
 spec:
-  group: hashicups.template.jet.crossplane.io
+  group: vpc.do.jet.crossplane.io
   names:
     categories:
     - crossplane
     - managed
-    - templatejet
-    kind: Order
-    listKind: OrderList
-    plural: orders
-    singular: order
+    - dojet
+    kind: Vpc
+    listKind: VpcList
+    plural: vpcs
+    singular: vpc
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -34,7 +34,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Order is the Schema for the Orders API
+        description: Vpc is the Schema for the Vpcs API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -49,7 +49,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: OrderSpec defines the desired state of Order
+            description: VpcSpec defines the desired state of Vpc
             properties:
               deletionPolicy:
                 default: Delete
@@ -62,31 +62,21 @@ spec:
                 type: string
               forProvider:
                 properties:
-                  items:
-                    items:
-                      properties:
-                        coffee:
-                          items:
-                            properties:
-                              id:
-                                format: int64
-                                type: integer
-                            required:
-                            - id
-                            type: object
-                          type: array
-                        quantity:
-                          format: int64
-                          type: integer
-                      required:
-                      - coffee
-                      - quantity
-                      type: object
-                    type: array
-                  lastUpdated:
+                  description:
+                    description: A free-form description for the VPC
+                    type: string
+                  ipRange:
+                    description: The range of IP addresses for the VPC in CIDR notation
+                    type: string
+                  name:
+                    description: The name of the VPC
+                    type: string
+                  region:
+                    description: DigitalOcean region slug for the VPC's location
                     type: string
                 required:
-                - items
+                - name
+                - region
                 type: object
               providerConfigRef:
                 default:
@@ -133,9 +123,16 @@ spec:
             - forProvider
             type: object
           status:
-            description: OrderStatus defines the observed state of Order.
+            description: VpcStatus defines the observed state of Vpc.
             properties:
               atProvider:
+                properties:
+                  createdAt:
+                    type: string
+                  default:
+                    type: boolean
+                  urn:
+                    type: string
                 type: object
               conditions:
                 description: Conditions of the resource.

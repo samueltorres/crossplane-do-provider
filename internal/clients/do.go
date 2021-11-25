@@ -27,17 +27,22 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/crossplane-contrib/provider-jet-template/apis/v1alpha1"
+	"github.com/crossplane-contrib/provider-jet-do/apis/v1alpha1"
 )
 
 const (
-	keyUsername = "username"
-	keyPassword = "password"
-	keyHost     = "host"
+	keyToken           = "token"
+	keySpacesAccessId  = "spaces_access_id"
+	keySpacesSecretKey = "spaces_secret_key"
+	keyApiEndpoint     = "api_endpoint"
+	keySpacesEndpoint  = "spaces_endpoint"
 
-	// Template credentials environment variable names
-	envUsername = "HASHICUPS_USERNAME"
-	envPassword = "HASHICUPS_PASSWORD"
+	// DO credentials environment variable names
+	envToken           = "DIGITALOCEAN_TOKEN"
+	envSpacesAccessId  = "SPACES_ACCESS_KEY_ID"
+	envSpacesSecretKey = "SPACES_SECRET_ACCESS_KEY"
+	envApiEndpoint     = "DIGITALOCEAN_API_URL"
+	envSpacesEndpoint  = "SPACES_ENDPOINT_URL"
 )
 
 const (
@@ -48,7 +53,7 @@ const (
 	errGetProviderConfig    = "cannot get referenced ProviderConfig"
 	errTrackUsage           = "cannot track ProviderConfig usage"
 	errExtractCredentials   = "cannot extract credentials"
-	errUnmarshalCredentials = "cannot unmarshal template credentials as JSON"
+	errUnmarshalCredentials = "cannot unmarshal do credentials as JSON"
 )
 
 // TerraformSetupBuilder builds Terraform a terraform.SetupFn function which
@@ -81,20 +86,43 @@ func TerraformSetupBuilder(version, providerSource, providerVersion string) terr
 		if err != nil {
 			return ps, errors.Wrap(err, errExtractCredentials)
 		}
-		templateCreds := map[string]string{}
-		if err := json.Unmarshal(data, &templateCreds); err != nil {
+		doCreds := map[string]string{}
+		if err := json.Unmarshal(data, &doCreds); err != nil {
 			return ps, errors.Wrap(err, errUnmarshalCredentials)
 		}
 
 		// set provider configuration
-		ps.Configuration = map[string]interface{}{
-			"host": templateCreds[keyHost],
+		ps.Configuration = map[string]interface{}{}
+
+		if v, ok := doCreds[keyToken]; ok {
+			ps.Configuration[keyToken] = v
 		}
+
+		if v, ok := doCreds[keySpacesAccessId]; ok {
+			ps.Configuration[keySpacesAccessId] = v
+		}
+
+		if v, ok := doCreds[keySpacesSecretKey]; ok {
+			ps.Configuration[keySpacesSecretKey] = v
+		}
+
+		if v, ok := doCreds[keyApiEndpoint]; ok {
+			ps.Configuration[keyApiEndpoint] = v
+		}
+
+		if v, ok := doCreds[keyToken]; ok {
+			ps.Configuration[keySpacesEndpoint] = v
+		}
+
 		// set environment variables for sensitive provider configuration
 		ps.Env = []string{
-			fmt.Sprintf(fmtEnvVar, envUsername, templateCreds[keyUsername]),
-			fmt.Sprintf(fmtEnvVar, envPassword, templateCreds[keyPassword]),
+			fmt.Sprintf(fmtEnvVar, keyToken, doCreds[envToken]),
+			fmt.Sprintf(fmtEnvVar, keySpacesAccessId, doCreds[envSpacesAccessId]),
+			fmt.Sprintf(fmtEnvVar, keySpacesSecretKey, doCreds[envSpacesSecretKey]),
+			fmt.Sprintf(fmtEnvVar, keyApiEndpoint, doCreds[envApiEndpoint]),
+			fmt.Sprintf(fmtEnvVar, keySpacesEndpoint, doCreds[envSpacesEndpoint]),
 		}
+
 		return ps, nil
 	}
 }

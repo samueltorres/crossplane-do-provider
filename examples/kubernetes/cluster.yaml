@@ -1,0 +1,18 @@
+apiVersion: kubernetes.do.jet.crossplane.io/v1alpha1
+kind: Cluster
+metadata:
+  name: do-challenge
+  annotations:
+    crossplane.io/external-name: dochallenge
+spec:
+  forProvider:
+    region: "nyc3"
+    version: "1.21.5-do.0"
+    nodePool:
+      - name: "worker-pool"
+        size: "s-2vcpu-2gb"
+        nodeCount: 1
+    vpcUuidRef:
+      name: hello-crossplane
+  providerConfigRef:
+    name: default

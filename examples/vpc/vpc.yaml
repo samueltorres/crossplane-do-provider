@@ -1,0 +1,12 @@
+apiVersion: vpc.do.jet.crossplane.io/v1alpha1
+kind: Vpc
+metadata:
+  name: hello-crossplane
+spec:
+  forProvider:
+    name: "dochallenge"
+    description: "test"
+    region: "nyc3"
+    ipRange: "10.180.10.0/24"
+  providerConfigRef:
+    name: default

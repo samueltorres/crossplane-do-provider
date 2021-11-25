@@ -17,13 +17,15 @@ limitations under the License.
 package config
 
 import (
+	"github.com/crossplane-contrib/provider-jet-do/config/kubernetes"
+	"github.com/crossplane-contrib/provider-jet-do/config/vpc"
 	tjconfig "github.com/crossplane-contrib/terrajet/pkg/config"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const (
-	resourcePrefix = "template"
-	modulePath     = "github.com/crossplane-contrib/provider-jet-template"
+	resourcePrefix = "do"
+	modulePath     = "github.com/crossplane-contrib/provider-jet-do"
 )
 
 // GetProvider returns provider configuration
@@ -40,10 +42,17 @@ func GetProvider(tf *schema.Provider) *tjconfig.Provider {
 	}
 
 	pc := tjconfig.NewProvider(tf.ResourcesMap, resourcePrefix, modulePath,
-		tjconfig.WithDefaultResourceFn(defaultResourceFn))
+		tjconfig.WithDefaultResourceFn(defaultResourceFn),
+		tjconfig.WithIncludeList([]string{
+			"digitalocean_vpc$",
+			"digitalocean_kubernetes_cluster$",
+			"digitalocean_kubernetes_node_pool$",
+		}))
 
 	for _, configure := range []func(provider *tjconfig.Provider){
 		// add custom config functions
+		vpc.Customize,
+		kubernetes.Customize,
 	} {
 		configure(pc)
 	}
